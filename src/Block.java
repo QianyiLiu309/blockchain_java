@@ -5,13 +5,23 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class Block {
-    public String hash;
-    public String previousHash;
-    public String merkleRoot;
-    public ArrayList<Transaction> transactions = new ArrayList<>();
+    private String hash;
+    private String previousHash;
+    private String merkleRoot;
+    private ArrayList<Transaction> transactions = new ArrayList<>();
     //private String data; // our data will be some simple message
     private long timeStamp;
     private int nonce;
+
+    public String getHash(){
+        return hash;
+    }
+
+    public String getPreviousHash(){
+        return previousHash;
+    }
+
+    public ArrayList<Transaction> getTransactions(){ return transactions; }
 
     public Block(String previousHash){
         //this.data = data;

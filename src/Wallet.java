@@ -6,11 +6,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Wallet {
-    public PrivateKey privateKey;
-    public PublicKey publicKey;
+    private PrivateKey privateKey;
+    private PublicKey publicKey;
 
-    public HashMap<String, TransactionOutput> UTXOs = new HashMap<>(); // only UTXOs owned by this wallet
-    public HashMap<String, Transaction> transactionHistory = new HashMap<>();
+    private HashMap<String, TransactionOutput> UTXOs = new HashMap<>(); // only UTXOs owned by this wallet
+    private HashMap<String, Transaction> transactionHistory = new HashMap<>();
+
+    public PrivateKey getPrivateKey() {
+        return privateKey;
+    }
+
+    public PublicKey getPublicKey(){
+        return publicKey;
+    }
 
     public Wallet(){
         generateKeyPair();
@@ -38,11 +46,11 @@ public class Wallet {
     // returns balance and stores the UTXO's owned by this wallet in this.UTXOs
     public float getBalance(){
         float total = 0;
-        for(Map.Entry item: NoobChain.UTXOs.entrySet()){
+        for(Map.Entry item: NoobChain.getUTXOs().entrySet()){
             TransactionOutput UTXO = (TransactionOutput) item.getValue();
             if(UTXO.isMine(publicKey)){
-                UTXOs.put(UTXO.id, UTXO);
-                total += UTXO.value;
+                UTXOs.put(UTXO.getId(), UTXO);
+                total += UTXO.getValue();
             }
         }
         return total;
@@ -60,8 +68,8 @@ public class Wallet {
         float total = 0;
         for(Map.Entry item: UTXOs.entrySet()){
             TransactionOutput UTXO = (TransactionOutput) item.getValue();
-            total += UTXO.value;
-            inputs.add(new TransactionInput(UTXO.id));
+            total += UTXO.getValue();
+            inputs.add(new TransactionInput(UTXO.getId()));
             if(total > value)
                 break;
         }
@@ -70,9 +78,9 @@ public class Wallet {
         newTransacion.generateSignature(privateKey);
 
         for(TransactionInput input: inputs){
-            UTXOs.remove(input.transactionOutputId);
+            UTXOs.remove(input.getTransactionOutputId());
         }
-        transactionHistory.put(newTransacion.transactionId, newTransacion);
+        transactionHistory.put(newTransacion.getTransactionId(), newTransacion);
         return newTransacion;
     }
 
@@ -80,7 +88,7 @@ public class Wallet {
         System.out.println("Transaction history of " + StringUtil.getStringFromKey(publicKey));
         for(Map.Entry entry: transactionHistory.entrySet()){
             Transaction t = (Transaction) entry.getValue();
-            System.out.println("TransactionId：" + t.transactionId + " Amount: " + t.value);
+            System.out.println("TransactionId：" + t.getTransactionId() + " Amount: " + t.getValue());
         }
     }
 }

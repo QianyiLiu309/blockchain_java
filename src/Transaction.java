@@ -3,16 +3,44 @@ import java.security.PublicKey;
 import java.util.ArrayList;
 
 public class Transaction {
-    public String transactionId; // this is also the hash of the transaction
-    public PublicKey sender; // senders address
-    public PublicKey recipient; // recipients address
-    public float value;
-    public byte[] signature; // to prevent anybody else from spending funds in our wallet
-
-    public ArrayList<TransactionInput> inputs = new ArrayList<TransactionInput>();
-    public ArrayList<TransactionOutput> outputs = new ArrayList<TransactionOutput>();
-
+    private String transactionId; // this is also the hash of the transaction
+    private PublicKey sender; // senders address
+    private PublicKey recipient; // recipients address
+    private float value;
+    private byte[] signature; // to prevent anybody else from spending funds in our wallet
+    private ArrayList<TransactionInput> inputs = new ArrayList<TransactionInput>();
+    private ArrayList<TransactionOutput> outputs = new ArrayList<TransactionOutput>();
     private static int sequence = 0; // a rough count of how many transactions have been generated
+
+    // a bunch of getter methods
+    public String getTransactionId(){
+        return transactionId;
+    }
+
+    public PublicKey getSender(){
+        return sender;
+    }
+
+    public PublicKey getRecipient(){
+        return recipient;
+    }
+
+    public float getValue(){
+        return value;
+    }
+
+    public ArrayList<TransactionInput> getInputs(){
+        return inputs;
+    }
+
+    public ArrayList<TransactionOutput> getOutputs(){
+        return outputs;
+    }
+
+
+    public void setTransactionId(String s){
+        transactionId = s;
+    }
 
     // constructor
     public Transaction(PublicKey from, PublicKey to, float value, ArrayList<TransactionInput> inputs){
@@ -52,11 +80,11 @@ public class Transaction {
 
         // gather transaction inputs (make sure they are unspent):
         for(TransactionInput i: inputs){
-            i.UTXO = NoobChain.UTXOs.get(i.transactionOutputId);
+            i.setUTXO(NoobChain.getUTXOs().get(i.getTransactionOutputId()));
         }
 
         // check if transaction is valid:
-        if(getInputsValue() < NoobChain.minimumTransaction){
+        if(getInputsValue() < NoobChain.getMinimumTransaction()){
             System.out.println("#Transaction inputs too small: " + getInputsValue());
             return false;
         }
@@ -69,14 +97,14 @@ public class Transaction {
 
         // add outputs to Unspent list
         for(TransactionOutput o: outputs){
-            NoobChain.UTXOs.put(o.id, o);
+            NoobChain.getUTXOs().put(o.getId(), o);
         }
 
         // remove transaction inputs from UTXO lists as spent:
         for(TransactionInput i: inputs){
-            if(i.UTXO == null)
+            if(i.getUTXO() == null)
                 continue;
-            NoobChain.UTXOs.remove(i.UTXO.id);
+            NoobChain.getUTXOs().remove(i.getUTXO().getId());
         }
 
         return true;
@@ -86,9 +114,9 @@ public class Transaction {
     public float getInputsValue(){
         float total = 0;
         for(TransactionInput i: inputs){
-            if(i.UTXO == null)
+            if(i.getUTXO() == null)
                 continue; // if Transaction can't be found skip it
-            total += i.UTXO.value;
+            total += i.getUTXO().getValue();
         }
         return total;
     }
@@ -97,7 +125,7 @@ public class Transaction {
     public float getOutputsValue(){
         float total = 0;
         for(TransactionOutput o: outputs){
-            total += o.value;
+            total += o.getValue();
         }
         return total;
     }
