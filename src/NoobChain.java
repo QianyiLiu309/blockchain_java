@@ -132,11 +132,16 @@ public class NoobChain {
         Block block3 = new Block(block2.hash);
         System.out.println("\nWalletB is attempting to send funds (20) to walletA... ");
         block3.addTransaction(walletB.sendFunds(walletA.publicKey, 20f));
+        System.out.println("\nWalletA is attempting to send funds (5) to walletB...");
+        block3.addTransaction(walletA.sendFunds(walletB.publicKey, 5f));
         addBlock(block3);
         System.out.println("\nWalletA's balance is: " + walletA.getBalance());
         System.out.println("\nWalletB's balance is: " + walletB.getBalance());
 
         isChainValid();
+
+        walletA.printTransactionHistory();
+        walletB.printTransactionHistory();
 
 
         /*// Test public and private keys
